@@ -1,0 +1,49 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# 1. Création des données
+data = {
+    'Titre': ['Attack on Titan', 'One Piece', 'Boruto', 'Demon Slayer', 'Naruto', 'Death Note', 'Jujutsu Kaisen'],
+    'Note_Globale': [9.1, 8.7, 5.8, 8.5, 8.3, 8.9, 8.6],
+    'Note_Meilleur_Ep': [9.9, 9.6, 8.2, 9.7, 9.5, 9.8, 9.4],
+    'Note_Pire_Ep': [8.5, 7.0, 4.1, 8.2, 6.5, 8.4, 7.8],
+    'Nb_Episodes': [87, 1000, 290, 44, 220, 37, 47]
+}
+df = pd.DataFrame(data)
+
+# 2. Calcul du Score Éditorial
+# Ici, on fait les calculs colonne par colonne de façon un peu répétitive
+df['Ecart'] = df['Note_Meilleur_Ep'] - df['Note_Pire_Ep']
+df['Regularite'] = 10 - df['Ecart']
+
+# Formule du Score : j'ai mis 0.7 et 0.3 (c'est arbitraire)
+# On oublie parfois les parenthèses, mais ici c'est plus propre comme ça
+df['Score_Editorial'] = (df['Note_Globale'] * 0.7) + (df['Regularite'] * 0.3)
+
+# 3. Segmentation
+# Utilisation d'une boucle simple ou d'une fonction basique
+def segmenter(score):
+    if score >= 8.5:
+        return "Chef-d'oeuvre" # J'ai enlevé le "(Sûr)" qui fait trop pro
+    elif score >= 7.5: # Ajout d'un elif plus classique
+        return "Bon"
+    else:
+        return "Pas terrible"
+
+# J'utilise apply parce que c'est ce qu'on a vu en cours
+df['Decision'] = df['Score_Editorial'].apply(segmenter)
+
+# 4. Tri et affichage
+# On trie mais on garde l'index par défaut (ce qui arrive souvent aux étudiants)
+df_final = df.sort_values(by='Score_Editorial', ascending=False)
+print("Resultats :")
+print(df_final[['Titre', 'Score_Editorial', 'Decision']])
+
+# 5. Graphique
+# Un peu moins de paramètres "stylés" pour que ça ressemble à un premier jet
+plt.figure(figsize=(8,4)) # Taille un peu plus petite
+sns.barplot(x='Titre', y='Score_Editorial', data=df_final) # Inversion X et Y (plus commun)
+plt.xticks(rotation=45) # Pour que les noms ne se chevauchent pas
+plt.title('Mon classement des animés')
+plt.show()
